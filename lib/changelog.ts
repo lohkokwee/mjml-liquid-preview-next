@@ -84,7 +84,7 @@ export async function getAllChangelogEntries(): Promise<ChangelogEntry[]> {
     })
   );
   
-  // NOTE: Filter out any null entries and sort by date (newest first)
+  // Filter out any null entries and sort by date (newest first)
   return entries
     .filter((entry): entry is ChangelogEntry => entry !== null)
     .sort((a, b) => (a.date > b.date ? -1 : 1));

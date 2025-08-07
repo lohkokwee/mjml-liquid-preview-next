@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const hotkeyHintVariants = cva(
-  "absolute text-[10px] font-mono bg-muted px-1 rounded",
+  "absolute text-[10px] font-mono text-foreground bg-muted px-1 rounded",
   {
     variants: {
       variant: {

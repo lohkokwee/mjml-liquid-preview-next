@@ -13,8 +13,8 @@ import {
 import { DialogDescription } from "@radix-ui/react-dialog"
 
 import { useUIState } from "@/hooks/use-ui-state"
-import { HotkeyIconButton } from "../shared/hotkeys/hotkey-icon-button"
-import { UI_STATE, HOTKEYS, HOTKEY_SECTIONS } from "@/lib/constants"
+import { HotkeyIconButton } from "@/components/shared/hotkeys/hotkey-icon-button"
+import { UI_STATE, HOTKEYS, STANDARD_HOTKEYS } from "@/lib/constants"
 
 export function HelpDialog() {
   const { isOpen, onOpenChange } = useUIState(UI_STATE.HELP)
@@ -40,7 +40,7 @@ export function HelpDialog() {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {HOTKEY_SECTIONS.map((section) => (
+          {STANDARD_HOTKEYS.map((section) => (
             <div key={section.title}>
               <h3 className="font-sans text-lg font-semibold mb-2">{section.title}</h3>
               <div className="space-y-2">

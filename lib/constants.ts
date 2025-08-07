@@ -13,6 +13,7 @@ export const UI_STATE: Record<string, string> = {
   THEME: "theme",
   LIQUID: "liquid",
   EXPORT: "export",
+  HTML_EXPORT_OPTIONS: "html_export_options",
   LAYOUT: "layout",
   VIEWPORT: "viewport",
   HELP: "help",
@@ -20,7 +21,7 @@ export const UI_STATE: Record<string, string> = {
   SHARED_LIQUID_SHEET: "shared_liquid_sheet"
 } as const;
 
-export const HOTKEY_SECTIONS: {
+export const STANDARD_HOTKEYS: {
   title: string;
   hotkeys: { id: string; key: string; description: string }[];
 }[] = [
@@ -97,13 +98,13 @@ export const HOTKEY_SECTIONS: {
 
 export const HOTKEYS: Record<string, { key: string, description: string, hint: string }> = {
   ...Object.fromEntries(
-    HOTKEY_SECTIONS.flatMap(section =>
+    STANDARD_HOTKEYS.flatMap(section =>
       section.hotkeys.map(hotkey => [
         hotkey.id,
         {
           key: hotkey.key, 
           description: hotkey.description,
-          hint: hotkey.key.split("+")[1]
+          hint: hotkey.key.split("+")[1] || hotkey.key
         }
       ])
     )

@@ -29,43 +29,52 @@ export function ThemeManager() {
   }, [theme])
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.TOGGLE_THEME.key,
+    hotkeys: HOTKEYS.TOGGLE_THEME.key,
     onTrigger: () => {
       onOpenChange(!isOpen)
     },
   })
 
   const lightRef = useHotkeysHandler({
-    hotkey: HOTKEYS.THEME_LIGHT.key,
+    hotkeys: HOTKEYS.THEME_LIGHT.key,
     onTrigger: () => {
       if (isOpen) {
         setTheme("light")
         onOpenChange(false)
       }
     },
-    dependencies: [isOpen]
+    dependencies: [isOpen],
+    options: {
+      enabled: isOpen
+    }
   })
 
   const darkRef = useHotkeysHandler({
-    hotkey: HOTKEYS.THEME_DARK.key,
+    hotkeys: HOTKEYS.THEME_DARK.key,
     onTrigger: () => {
       if (isOpen) {
         setTheme("dark")
         onOpenChange(false)
       }
     },
-    dependencies: [isOpen]
+    dependencies: [isOpen],
+    options: {
+      enabled: isOpen
+    }
   })
 
   const systemRef = useHotkeysHandler({
-    hotkey: HOTKEYS.THEME_SYSTEM.key,
+    hotkeys: HOTKEYS.THEME_SYSTEM.key,
     onTrigger: () => {
       if (isOpen) {
         setTheme("system")
         onOpenChange(false)
       }
     },
-    dependencies: [isOpen]
+    dependencies: [isOpen],
+    options: {
+      enabled: isOpen
+    }
   })
 
   if (!mounted) {

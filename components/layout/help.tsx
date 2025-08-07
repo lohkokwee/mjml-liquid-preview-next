@@ -15,6 +15,8 @@ import { DialogDescription } from "@radix-ui/react-dialog"
 import { useUIState } from "@/hooks/use-ui-state"
 import { HotkeyIconButton } from "@/components/shared/hotkeys/hotkey-icon-button"
 import { UI_STATE, HOTKEYS, STANDARD_HOTKEYS } from "@/lib/constants"
+import Separator from "@/components/shared/common/separator"
+
 
 export function HelpDialog() {
   const { isOpen, onOpenChange } = useUIState(UI_STATE.HELP)
@@ -32,8 +34,8 @@ export function HelpDialog() {
             <span className="font-sans text-xl">Keyboard Shortcuts</span>
           </DialogTitle>
           <DialogDescription>
-            <span className="font-sans text-sm text-muted-foreground">
-              Hitting <kbd className="px-2 py-1 rounded bg-muted font-mono text-xs">alt</kbd> opens up mini keywords beside the various buttons to help you navigate the app.
+            <span className="font-serif text-sm text-muted-foreground">
+              Hitting <kbd className="px-1 py-0.5 rounded bg-muted font-mono text-xs">alt</kbd> opens up mini keywords beside the various buttons to help you navigate the app.
               I hope you find using this as fun as it was to build!
             </span>
           </DialogDescription>
@@ -42,12 +44,13 @@ export function HelpDialog() {
         <div className="space-y-6 py-4">
           {STANDARD_HOTKEYS.map((section) => (
             <div key={section.title}>
-              <h3 className="font-sans text-lg font-semibold mb-2">{section.title}</h3>
+              <h3 className="font-sans text-lg font-semibold mb-4">{section.title}</h3>
+              <Separator className="mb-4" />
               <div className="space-y-2">
                 {section.hotkeys.map((hotkey) => (
-                  <div key={hotkey.key} className="flex items-center justify-between">
-                    <span className="font-sans text-sm text-muted-foreground">{hotkey.description}</span>
-                    <kbd className="px-2 py-1 rounded bg-muted font-mono text-xs">
+                  <div key={hotkey.key} className="flex items-center justify-between space-y-1">
+                    <span className="font-serif text-sm text-muted-foreground">{hotkey.description}</span>
+                    <kbd className="px-1 py-0.5 rounded bg-muted font-mono text-xs">
                       {hotkey.key.replace(/\+/g, ' + ')}
                     </kbd>
                   </div>

@@ -10,16 +10,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
 
 import { JSONEditor } from "./json-editor"
 import useMJMLProcessor from "@/hooks/use-mjml-processor"
 import { useLocalStorage } from "@/hooks/use-local-storage"
-import { useKeyboard } from "@/hooks/use-keyboard"
 import { useToast } from "@/hooks/use-toast"
 import { useHotkeysHandler } from "@/hooks/use-hotkeys-handler"
 import { HotkeyIconButton } from "../shared/hotkeys/hotkey-icon-button"
 import { STORAGE_KEYS, HOTKEYS, DEFAULT_LOCAL_LIQUID, DEFAULT_SHARED_LIQUID, ASCENDA_LIQUID_TEMPLATE } from "@/lib/constants"
+import { HotkeyButton } from "../shared/hotkeys/hotkey-button"
 
 interface LiquidInjectorProps {
   type: "local" | "shared"
@@ -35,7 +34,6 @@ export function LiquidInjector({ type, isOpen, onOpenChange }: LiquidInjectorPro
   const defaultLiquid = type === "local" ? DEFAULT_LOCAL_LIQUID : DEFAULT_SHARED_LIQUID
   const [storedLiquid, setStoredLiquid] = useLocalStorage<Record<string, unknown>>(storageKey, defaultLiquid)
   const { refreshTemplate } = useMJMLProcessor()
-  const { isAltPressed } = useKeyboard()
 
   useEffect(() => {
     if (isOpen) {
@@ -80,53 +78,62 @@ export function LiquidInjector({ type, isOpen, onOpenChange }: LiquidInjectorPro
   }, [setIsExpanded, isExpanded])
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.LIQUID_SAVE.key,
+    hotkeys: HOTKEYS.LIQUID_SAVE.key,
     onTrigger: () => {
       if (isOpen) { handleSave() }
     },
-    dependencies: [isOpen, handleSave]
+    dependencies: [isOpen, handleSave],
+    options: {
+      enabled: isOpen
+    }
   })
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.LIQUID_RESET.key,
+    hotkeys: HOTKEYS.LIQUID_RESET.key,
     onTrigger: () => {
       if (isOpen) { handleReset() }
     },
-    dependencies: [isOpen, handleReset]
+    dependencies: [isOpen, handleReset],
+    options: {
+      enabled: isOpen
+    }
   })
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.LIQUID_GENERATE.key,
+    hotkeys: HOTKEYS.LIQUID_GENERATE.key,
     onTrigger: () => {
       if (isOpen && type === "shared") { handleGenerateAscenda() }
     },
-    dependencies: [isOpen, type]
+    dependencies: [isOpen, type],
+    options: {
+      enabled: isOpen && type === "shared"
+    }
   })
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.LIQUID_EXPAND.key,
+    hotkeys: HOTKEYS.LIQUID_EXPAND.key,
     onTrigger: () => {
       if (isOpen) { toggleExpand() }
     },
-    dependencies: [isOpen, toggleExpand]
+    dependencies: [isOpen, toggleExpand],
+    options: {
+      enabled: isOpen
+    }
   })
 
   const renderAscendaLiquidGenerateButton = () => {
     if (type === "shared") {
       return (
-        <Button
-          variant="outline"
-          className="w-full relative"
+        <HotkeyButton
+          hotkey={HOTKEYS.LIQUID_GENERATE.hint}
           onClick={handleGenerateAscenda}
+          variant="outline"
+          className="w-full"
+          leftIcon={Sparkles}
+          tooltip={HOTKEYS.LIQUID_GENERATE.description}
         >
-          <Sparkles className="mr-2 h-4 w-4" />
-          <span className="font-sans">{HOTKEYS.LIQUID_GENERATE.description}</span>
-          {isAltPressed && (
-            <span className="absolute right-2 text-[10px] font-mono text-muted-foreground bg-muted px-1 rounded">
-              {HOTKEYS.LIQUID_GENERATE.hint}
-            </span>
-          )}
-        </Button>
+          {HOTKEYS.LIQUID_GENERATE.description}
+        </HotkeyButton>
       )
     }
   }
@@ -164,29 +171,29 @@ export function LiquidInjector({ type, isOpen, onOpenChange }: LiquidInjectorPro
               variant="outline"
             />
             <div className="flex items-center space-x-2">
-              <Button variant="outline" onClick={handleReset} className="relative">
-                <RefreshCcw className="h-4 w-4" />
-                <span className="font-sans">Reset</span>
-                {isAltPressed && (
-                  <span className="absolute mx-auto text-[10px] font-mono text-muted-foreground bg-muted px-1 rounded">
-                    ⌫
-                  </span>
-                )}
-              </Button>
-              <Button onClick={handleSave} className="relative">
-                <Save className="h-4 w-4" />
-                <span className="font-sans">Save</span>
-                {isAltPressed && (
-                  <span className="absolute mx-auto text-[10px] font-mono text-muted-foreground bg-muted px-1 rounded">
-                    ↩
-                  </span>
-                )}
-              </Button>
+              <HotkeyButton
+                hotkey={"⌫"}
+                onClick={handleReset}
+                variant="outline"
+                leftIcon={RefreshCcw}
+                tooltip="Reset to default liquid"
+              >
+                Reset
+              </HotkeyButton>
+              <HotkeyButton
+                hotkey={"↩"}
+                onClick={handleSave}
+                variant="default"
+                leftIcon={Save}
+                tooltip="Save any updated liquid"
+              >
+                Save
+              </HotkeyButton>
             </div>
           </div>
           <div className="flex justify-end items-end">
-            <span className="font-sans text-sm text-muted-foreground text-right">
-              Tip: hit <kbd className="px-1 py-0.5 rounded bg-muted">⌥</kbd> or <kbd className="px-1 py-0.5 rounded bg-muted">alt</kbd> to view the available hotkey combinations or <kbd className="px-1 py-0.5 rounded bg-muted">Esc</kbd> to close the sheet!
+            <span className="font-serif text-sm text-muted-foreground text-right">
+              Tip: hit <kbd className="px-1 py-0.5 rounded bg-muted text-xs">⌥</kbd> or <kbd className="px-1 py-0.5 rounded bg-muted text-xs">alt</kbd> to view the available hotkey combinations or <kbd className="px-1 py-0.5 rounded bg-muted text-xs">Esc</kbd> to close the sheet!
             </span>
           </div>
         </div>

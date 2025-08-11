@@ -21,30 +21,36 @@ export function LiquidManager() {
   const { isOpen: isSharedOpen, onOpenChange: onSharedOpenChange } = useUIState(UI_STATE.SHARED_LIQUID_SHEET)
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.TOGGLE_LIQUID.key,
+    hotkeys: HOTKEYS.TOGGLE_LIQUID.key,
     onTrigger: () => {
       onManagerOpenChange(!isManagerOpen)
     },
   })
 
   const localRef = useHotkeysHandler({
-    hotkey: HOTKEYS.LIQUID_LOCAL.key,
+    hotkeys: HOTKEYS.LIQUID_LOCAL.key,
     onTrigger: () => {
       if (isManagerOpen) {
         onLocalOpenChange(true)
       }
     },
-    dependencies: [isManagerOpen]
+    dependencies: [isManagerOpen],
+    options: {
+      enabled: isManagerOpen
+    }
   })
 
   const sharedRef = useHotkeysHandler({
-    hotkey: HOTKEYS.LIQUID_SHARED.key,
+    hotkeys: HOTKEYS.LIQUID_SHARED.key,
     onTrigger: () => {
       if (isManagerOpen) {
         onSharedOpenChange(true)
       }
     },
-    dependencies: [isManagerOpen]
+    dependencies: [isManagerOpen],
+    options: {
+      enabled: isManagerOpen
+    }
   })
 
   return (

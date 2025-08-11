@@ -11,7 +11,7 @@ export function LayoutManager() {
   const { isFullScreen, toggleFullScreen } = useLayout()
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.TOGGLE_LAYOUT.key,
+    hotkeys: HOTKEYS.TOGGLE_LAYOUT.key,
     onTrigger: () => { toggleFullScreen() }
   })
 

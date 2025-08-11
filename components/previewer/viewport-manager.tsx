@@ -91,50 +91,62 @@ export function ViewportManager() {
   }
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.TOGGLE_VIEWPORT.key,
+    hotkeys: HOTKEYS.TOGGLE_VIEWPORT.key,
     onTrigger: () => {
       onOpenChange(!isOpen)
     }
   })
 
   const desktopRef = useHotkeysHandler({
-    hotkey: HOTKEYS.VIEWPORT_DESKTOP.key,
+    hotkeys: HOTKEYS.VIEWPORT_DESKTOP.key,
     onTrigger: () => {
       if (isOpen) handlePresetChange("desktop")
     },
-    dependencies: [isOpen]
+    dependencies: [isOpen],
+    options: {
+      enabled: isOpen
+    }
   })
     
 
   const mobileRef = useHotkeysHandler({
-    hotkey: HOTKEYS.VIEWPORT_MOBILE.key,
+    hotkeys: HOTKEYS.VIEWPORT_MOBILE.key,
     onTrigger: () => {
       if (isOpen) handlePresetChange("mobile")
     },
-    dependencies: [isOpen]
+    dependencies: [isOpen],
+    options: {
+      enabled: isOpen
+    }
   })
   
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.VIEWPORT_WIDTH.key,
+    hotkeys: HOTKEYS.VIEWPORT_WIDTH.key,
     onTrigger: () => {
       if (isOpen) {
         widthInputRef.current?.focus()
         widthInputRef.current?.select()
       }
     },
-    dependencies: [isOpen]
+    dependencies: [isOpen],
+    options: {
+      enabled: isOpen
+    }
   })
 
   useHotkeysHandler({
-    hotkey: HOTKEYS.VIEWPORT_HEIGHT.key,
+    hotkeys: HOTKEYS.VIEWPORT_HEIGHT.key,
     onTrigger: () => {
       if (isOpen) {
         heightInputRef.current?.focus()
         heightInputRef.current?.select()
       }
     },
-    dependencies: [isOpen]
+    dependencies: [isOpen],
+    options: {
+      enabled: isOpen
+    }
   })
 
   return (

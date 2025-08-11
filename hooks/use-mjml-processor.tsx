@@ -10,6 +10,7 @@ interface MJMLContextType {
   content: string;
   setContent: (value: string) => void;
   html: string;
+  vanillaHtml: () => Promise<string>;
   error: Error | null;
   isProcessing: boolean;
   refreshTemplate: () => void;
@@ -45,6 +46,12 @@ export function MJMLProvider({ children }: { children: React.ReactNode }) {
       setInternalContent(newContent);
     }
   };
+
+  const vanillaHtml = async () => {
+    const mjml2html = (await import("mjml-browser")).default;
+    const { html } = mjml2html(ephemeralContent, {minify: true});
+    return html;
+  }
 
   useEffect(() => {
     const processTemplate = async () => {
@@ -88,6 +95,7 @@ export function MJMLProvider({ children }: { children: React.ReactNode }) {
     content: ephemeralContent,
     setContent,
     html,
+    vanillaHtml,
     error,
     isProcessing,
     refreshTemplate,

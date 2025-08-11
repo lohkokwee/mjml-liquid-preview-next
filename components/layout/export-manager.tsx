@@ -8,8 +8,7 @@ import { jsPDF } from "jspdf"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 import { useToast } from "@/hooks/use-toast"
@@ -18,24 +17,26 @@ import { useMJMLProcessor } from "@/hooks/use-mjml-processor"
 import { useViewport } from "@/hooks/use-viewport"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { useHotkeysHandler } from "@/hooks/use-hotkeys-handler"
-import { HotkeyIconButton } from "../shared/hotkeys/hotkey-icon-button"
-import { HotkeyDropdownItem } from "../shared/hotkeys/hotkey-dropdown-item"
+import { HotkeyIconButton } from "@/components/shared/hotkeys/hotkey-icon-button"
+import { HotkeyDropdownItem } from "@/components/shared/hotkeys/hotkey-dropdown-item"
+import { ExportOptions, ExportOption } from "@/components/export/export-options"
 import { STORAGE_KEYS, UI_STATE, HOTKEYS } from "@/lib/constants"
 import { copyToClipboard } from "@/lib/copy"
 
 export function ExportManager() {
-  const { content, html } = useMJMLProcessor()
+  const { content, html, vanillaHtml } = useMJMLProcessor()
   const [localLiquid] = useLocalStorage(STORAGE_KEYS.LOCAL_LIQUID, "{}")
   const [sharedLiquid] = useLocalStorage(STORAGE_KEYS.SHARED_LIQUID, "{}")
   const { toast } = useToast()
   const [exporting, setExporting] = useState(false)
   const { size } = useViewport()
-  const { isOpen, onOpenChange } = useUIState(UI_STATE.EXPORT)
+  const { isOpen: isDropdownOpen, onOpenChange: onDropdownOpenChange } = useUIState(UI_STATE.EXPORT)
+  const { isOpen: isExportOptionsOpen, onOpenChange: onExportOptionsChange } = useUIState(UI_STATE.HTML_EXPORT_OPTIONS)
 
   const handleCopy = async (data: string, type: string) => {
     await copyToClipboard(data, {
       onCopyStart: () => setExporting(true),
-      onCopySuccess: () => onOpenChange(false),
+      onCopySuccess: () => onDropdownOpenChange(false),
       onCopyComplete: () => setExporting(false),
       toastMessage: `${type} copied to clipboard!`,
       toast,
@@ -43,9 +44,30 @@ export function ExportManager() {
   }
 
   const handleCopyHTML = () => handleCopy(html, "HTML")
+  const handleCopyVanillaHTML = async () => handleCopy(await vanillaHtml(), "Vanilla HTML")
   const handleCopyMJML = () => handleCopy(content, "MJML")
   const handleCopyLocalLiquid = () => handleCopy(JSON.stringify(localLiquid, null, 2), "Local Liquid")
   const handleCopySharedLiquid = () => handleCopy(JSON.stringify(sharedLiquid, null, 2), "Shared Liquid")
+
+  const handleOpenHTMLExportOptions = () => {
+    onDropdownOpenChange(false) // Close the export dropdown
+    onExportOptionsChange(true) // Open the export options dialog
+  }
+
+  const htmlExportOptions: ExportOption[] = [
+    {
+      id: "liquid-processed-html",
+      label: "Liquid Processed HTML",
+      description: "This means that liquid templates will be substituted with the values you inputted in the liquid editor.",
+      callback: handleCopyHTML
+    },
+    {
+      id: "vanilla-html",
+      label: "Vanilla HTML",
+      description: "This means that liquid templates will not be substituted with the values you inputted in the liquid editor. This is useful if you use external tools that can consume liquid templates (e.g. Customer.io).",
+      callback: handleCopyVanillaHTML
+    }
+  ]
   
   const handleExportImage = async () => {
     if (!html || !size) {
@@ -87,7 +109,6 @@ export function ExportManager() {
           description: "Failed to access iframe content for export - please record the replication steps and raise an issue on GitHub🙇‍♂ ️",
           variant: "destructive"
         });
-        setExporting(false);
         return;
       }
       
@@ -111,7 +132,7 @@ export function ExportManager() {
 
       toast({
         title: "Export Successful",
-        description: "PDF has been downloaded.",
+        description: "PDF has been downloaded!",
         variant: "success"
       });
     } catch (error) {
@@ -122,96 +143,124 @@ export function ExportManager() {
         variant: "destructive",
       });
     } finally {
-      setExporting(false);
+      onDropdownOpenChange(false);
+      setTimeout(() => {
+        setExporting(false);
+      }, 1000);
     }
   }
   
   useHotkeysHandler({
-    hotkey: HOTKEYS.TOGGLE_COPY.key,
-    onTrigger: () => { onOpenChange(!isOpen) },
+    hotkeys: HOTKEYS.TOGGLE_COPY.key,
+    onTrigger: () => { onDropdownOpenChange(!isDropdownOpen) },
   })
 
   const htmlRef = useHotkeysHandler({
-    hotkey: HOTKEYS.COPY_HTML.key,
-    onTrigger: () => { if (isOpen) handleCopyHTML() },
-    dependencies: [isOpen, html]
+    hotkeys: HOTKEYS.COPY_HTML.key,
+    onTrigger: () => { if (isDropdownOpen) handleOpenHTMLExportOptions() },
+    dependencies: [isDropdownOpen],
+    options: {
+      enabled: isDropdownOpen
+    }
   })
   
   const mjmlRef = useHotkeysHandler({
-    hotkey: HOTKEYS.COPY_MJML.key,
-    onTrigger: () => { if (isOpen) handleCopyMJML() },
-    dependencies: [isOpen, content]
+    hotkeys: HOTKEYS.COPY_MJML.key,
+    onTrigger: () => { if (isDropdownOpen) handleCopyMJML() },
+    dependencies: [isDropdownOpen, content],
+    options: {
+      enabled: isDropdownOpen
+    }
   })
 
   const localRef = useHotkeysHandler({
-    hotkey: HOTKEYS.COPY_LOCAL.key,
-    onTrigger: () => { if (isOpen) handleCopyLocalLiquid() },
-    dependencies: [isOpen, localLiquid]
+    hotkeys: HOTKEYS.COPY_LOCAL.key,
+    onTrigger: () => { if (isDropdownOpen) handleCopyLocalLiquid() },
+    dependencies: [isDropdownOpen, localLiquid],
+    options: {
+      enabled: isDropdownOpen
+    }
   })
 
   const sharedRef = useHotkeysHandler({
-    hotkey: HOTKEYS.COPY_SHARED.key,
-    onTrigger: () => { if (isOpen) handleCopySharedLiquid() },
-    dependencies: [isOpen, sharedLiquid]
+    hotkeys: HOTKEYS.COPY_SHARED.key,
+    onTrigger: () => { if (isDropdownOpen) handleCopySharedLiquid() },
+    dependencies: [isDropdownOpen, sharedLiquid],
+    options: {
+      enabled: isDropdownOpen
+    }
   })
 
   const imageRef = useHotkeysHandler({
-    hotkey: HOTKEYS.EXPORT_IMAGE.key,
-    onTrigger: () => { if (isOpen) handleExportImage() },
-    dependencies: [isOpen, html]
+    hotkeys: HOTKEYS.EXPORT_IMAGE.key,
+    onTrigger: () => { if (isDropdownOpen) handleExportImage() },
+    dependencies: [isDropdownOpen, html],
+    options: {
+      enabled: isDropdownOpen
+    }
   })
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={onOpenChange}>
-      <DropdownMenuTrigger asChild>
-        <HotkeyIconButton
-          icon={exporting ? <Check className="text-green-500" /> : Download}
-          hotkey={HOTKEYS.TOGGLE_COPY.hint}
-          srText={HOTKEYS.TOGGLE_COPY.description}
-          title={HOTKEYS.TOGGLE_COPY.description}
-          showHotkeyOverride={isOpen}
-        />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[220px]" align="end" ref={(el) => {
-        htmlRef(el)
-        mjmlRef(el)
-        localRef(el)
-        sharedRef(el)
-        imageRef(el)
-      }}>
-        <HotkeyDropdownItem
-          icon={Code}
-          label={HOTKEYS.COPY_HTML.description}
-          hotkey={HOTKEYS.COPY_HTML.hint}
-          onClick={handleCopyHTML}
-        />
-        <HotkeyDropdownItem
-          icon={Code}
-          label={HOTKEYS.COPY_MJML.description}
-          hotkey={HOTKEYS.COPY_MJML.hint}
-          onClick={handleCopyMJML}
-        />
-        <DropdownMenuSeparator />
-        <HotkeyDropdownItem
-          icon={Braces}
-          label={HOTKEYS.COPY_LOCAL.description}
-          hotkey={HOTKEYS.COPY_LOCAL.hint}
-          onClick={handleCopyLocalLiquid}
-        />
-        <HotkeyDropdownItem
-          icon={Braces}
-          label={HOTKEYS.COPY_SHARED.description}
-          hotkey={HOTKEYS.COPY_SHARED.hint}
-          onClick={handleCopySharedLiquid}
-        />
-        <DropdownMenuSeparator />
-        <HotkeyDropdownItem
-          icon={Image}
-          label={HOTKEYS.EXPORT_IMAGE.description}
-          hotkey={HOTKEYS.EXPORT_IMAGE.hint}
-          onClick={handleExportImage}
-        />
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={onDropdownOpenChange}>
+        <DropdownMenuTrigger asChild>
+          <HotkeyIconButton
+            icon={exporting ? <Check className="text-green-500" /> : Download}
+            hotkey={HOTKEYS.TOGGLE_COPY.hint}
+            srText={HOTKEYS.TOGGLE_COPY.description}
+            title={HOTKEYS.TOGGLE_COPY.description}
+            showHotkeyOverride={isDropdownOpen}
+          />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-[220px]" align="end" ref={(el) => {
+          htmlRef(el)
+          mjmlRef(el)
+          localRef(el)
+          sharedRef(el)
+          imageRef(el)
+        }}>
+          <HotkeyDropdownItem
+            icon={Code}
+            label={HOTKEYS.COPY_HTML.description}
+            hotkey={HOTKEYS.COPY_HTML.hint}
+            onClick={handleOpenHTMLExportOptions}
+          />
+          <HotkeyDropdownItem
+            icon={Code}
+            label={HOTKEYS.COPY_MJML.description}
+            hotkey={HOTKEYS.COPY_MJML.hint}
+            onClick={handleCopyMJML}
+          />
+          <DropdownMenuSeparator />
+          <HotkeyDropdownItem
+            icon={Braces}
+            label={HOTKEYS.COPY_LOCAL.description}
+            hotkey={HOTKEYS.COPY_LOCAL.hint}
+            onClick={handleCopyLocalLiquid}
+          />
+          <HotkeyDropdownItem
+            icon={Braces}
+            label={HOTKEYS.COPY_SHARED.description}
+            hotkey={HOTKEYS.COPY_SHARED.hint}
+            onClick={handleCopySharedLiquid}
+          />
+          <DropdownMenuSeparator />
+          <HotkeyDropdownItem
+            icon={Image}
+            label={HOTKEYS.EXPORT_IMAGE.description}
+            hotkey={HOTKEYS.EXPORT_IMAGE.hint}
+            onClick={handleExportImage}
+          />
+        </DropdownMenuContent>
+      </DropdownMenu>
+      
+      <ExportOptions 
+        options={htmlExportOptions}
+        title="HTML Export Options"
+        description="Choose the HTML format you would like to copy."
+        isOpen={isExportOptionsOpen}
+        onOpenChange={onExportOptionsChange}
+      />
+    </>
   )
 } 

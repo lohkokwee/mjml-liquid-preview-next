@@ -24,7 +24,7 @@ export default function ChangelogCard(
 
   const formattedDate = new Date(entry.date).toLocaleDateString('en-US', {
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
   });
 
@@ -33,9 +33,13 @@ export default function ChangelogCard(
       <header className="flex items-center justify-between font-sans">
         <div className="flex flex-col space-y-2">
           <h1 className="text-xl font-semibold">{entry.title}</h1>
-          <p className="text-xs text-gray-600 dark:text-gray-400">{entry.type}</p>
+          <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-400">
+            <p>{entry.type}</p>
+            <p className="block sm:hidden">|</p>
+            <time className="block sm:hidden">{formattedDate}</time>
+          </div>
         </div>
-        <time className="text-xl">{formattedDate}</time>
+        <time className="text-xl text-right hidden sm:block">{formattedDate}</time>
       </header>
     )
   }

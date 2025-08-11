@@ -40,7 +40,7 @@ export default function ChangelogPost({ entry }: ChangelogPostProps) {
   const date = new Date(entry.date);
   const formattedDate = date.toLocaleDateString('en-US', {
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric'
   });
 
@@ -67,8 +67,10 @@ export default function ChangelogPost({ entry }: ChangelogPostProps) {
       <div className="mb-4 flex items-center justify-between font-sans space-x-8">
         <div className="flex flex-col space-y-2 w-full sm:w-auto">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-sans">{entry.title}</h1>
-            <div className="hidden sm:block">{renderShareButton()}</div>
+            <h1 className="text-3xl font-sans">
+              {entry.title}
+              <span className="ml-2 hidden sm:inline">{renderShareButton()}</span>
+            </h1>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">{entry.type}</p>
           <div className="flex sm:hidden justify-between">
@@ -76,7 +78,7 @@ export default function ChangelogPost({ entry }: ChangelogPostProps) {
             {renderShareButton()}
           </div>
         </div>
-        <p className="hidden sm:block text-3xl">{formattedDate}</p>
+        <p className="hidden sm:block text-3xl text-right">{formattedDate}</p>
       </div>
     )
   }

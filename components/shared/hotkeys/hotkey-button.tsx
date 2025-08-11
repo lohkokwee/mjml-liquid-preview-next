@@ -66,7 +66,7 @@ export function HotkeyButton({
       <span className="sr-only">{tooltip}</span>
       <span className="font-sans">{children}</span>
       {renderIcon(RightIcon, "right")}
-      {isAltPressed && !disabled && <HotkeyHint show={isAltPressed && !showHotkeyOverride} hotkey={hotkey} />}
+      {isAltPressed && !disabled && <HotkeyHint show={isAltPressed && !showHotkeyOverride} hotkey={hotkey} hintColor="foreground"/>}
     </Button>
   }
 

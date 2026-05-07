@@ -4,15 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { useTheme } from "next-themes";
 import CodeMirrorBase, { type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { html } from "@codemirror/lang-html";
-import { Save, RotateCcw } from "lucide-react";
+import { Save, RotateCcw, WrapText } from "lucide-react";
 import { useMJMLProcessor } from "@/hooks/use-mjml-processor";
 import { useHotkeys } from "react-hotkeys-hook";
 import { DEFAULT_MJML, HOTKEYS, UI_STATE } from "@/lib/constants";
+import { formatMJML } from "@/lib/format-mjml";
 import { useUIState } from "@/hooks/use-ui-state";
-
-export interface MJMLEditorProps {
-  value: string;
-}
+import { useKeyboard } from "@/hooks/use-keyboard";
 
 export const MJMLEditor = () => {
   const { theme } = useTheme();
@@ -20,6 +18,7 @@ export const MJMLEditor = () => {
   const [editorTheme, setEditorTheme] = useState<'light' | 'dark'>('light');
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const { onOpenChange  } = useUIState(UI_STATE.MJML_EDITOR);
+  const { isAltPressed } = useKeyboard();
 
   useEffect(() => {
     setEditorTheme(
@@ -44,6 +43,8 @@ export const MJMLEditor = () => {
     }
   };
 
+  const formatContent = () => setContent(formatMJML(content));
+
   useHotkeys(
     HOTKEYS.FOCUS_EDITOR.key,
     (e) => {
@@ -52,6 +53,15 @@ export const MJMLEditor = () => {
       setTimeout(() => {
         editorRef.current?.view?.focus();
       }, 300);
+    },
+    { enableOnFormTags: true, enableOnContentEditable: true }
+  );
+
+  useHotkeys(
+    HOTKEYS.FORMAT_MJML.key,
+    (e) => {
+      e.preventDefault();
+      formatContent();
     },
     { enableOnFormTags: true, enableOnContentEditable: true }
   );
@@ -70,18 +80,29 @@ export const MJMLEditor = () => {
       
       <div className="absolute bottom-4 right-4 flex gap-2">
         <button
+          onClick={formatContent}
+          className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors relative"
+          title="Format MJML (alt+p)"
+        >
+          <WrapText className="w-4 h-4" />
+          {isAltPressed && (
+            <span className="absolute bottom-0 right-0 text-[10px] font-mono bg-muted px-1 rounded">
+              {HOTKEYS.FORMAT_MJML.hint}
+            </span>
+          )}
+        </button>
+        <button
           onClick={resetStorage}
           className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           title="Reset content"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
-        
         <button
           onClick={toggleAutoSave}
           className={`p-2 rounded-full relative ${
-            autoSave 
-              ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400" 
+            autoSave
+              ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
               : "bg-gray-100 dark:bg-gray-800"
           } hover:bg-opacity-80 transition-colors`}
           title="Toggle auto-save"

@@ -26,6 +26,7 @@
     "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",
     "html2canvas": "^1.4.1",
+    "js-beautify": "^1.15.4",
     "jspdf": "^3.0.1",
     "liquidjs": "^10.19.0",
     "lucide-react": "^0.468.0",
@@ -44,6 +45,7 @@
     "thememirror": "^2.0.1"
   },
   "devDependencies": {
+    "@types/js-beautify": "^1.14.3",
     "@types/mjml-browser": "^4.15.0",
     "@types/node": "^20",
     "@types/react": "^19",

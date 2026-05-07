@@ -93,6 +93,12 @@ export const STANDARD_HOTKEYS: {
       { id: "TOGGLE_PREVIEW_SCALE", key: "alt+f", description: "Toggle preview scale mode" },
       { id: "REFRESH_PREVIEW", key: "alt+r", description: "Refresh preview" }
     ]
+  },
+  {
+    title: "MJML Editor",
+    hotkeys: [
+      { id: "FORMAT_MJML", key: "alt+p", description: "Format MJML" }
+    ]
   }
 ] as const;
 
